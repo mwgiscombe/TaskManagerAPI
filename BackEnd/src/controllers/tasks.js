@@ -8,11 +8,11 @@ let TASKS = [
         priority: 'www',
         subTasks: [{
             id: 1,
-            text: 'ee',
-            dueDate: 'eee',
-            completed: false
+            subText: 'ee',
+            subDueDate: 'eee',
+            subCompleted: false
         }],
-        progress: '4', //number of subtasks completed/total number
+        progress:0,
         completed: false
     },
     {
@@ -28,16 +28,22 @@ let TASKS = [
             subDueDate: 'eee',
             subCompleted: false
         }],
-        progress: '4', //number of subtasks completed/total number
+        progress:0,
         completed: false
     }
 ]
 
 let taskCounter = 3
 
-const updateProgress = (progress) =>{
-    let numCom=0
-    
+const updateProgress = (task) =>{
+   if(!task.subTasks || task.subTasks.length === 0){
+    return 0
+   }
+   let completed = task.subTasks.filter(st=> st.subCompleted == true).length
+   let total = task.subTasks.length
+   console.log(completed)
+
+   return completed / total
 
 }
 
@@ -61,11 +67,11 @@ const createTask =  (req, res) => {
         priority,
         subTasks: subTasks.map((st, subTaskCounter)=>({
             id: subTaskCounter++,
-            text: st.text,
-            dueDate: st.dueDate,
-            completed: false
+            subText: st.text,
+            subDueDate: st.dueDate,
+            subCompleted: false
         })),
-        progress,
+        progress:0,
         completed: false
     }
     TASKS.push(newTask)
@@ -93,6 +99,8 @@ const updateTask = (req, res) => {
             existingTask[key] = updates[key]
         }
     }
+    existingTask.progress = updateProgress(existingTask)
+    
     res.json({
         status: 'ok',
         message: 'Task Updated!',
@@ -129,6 +137,9 @@ const updateSubTask = (req, res) => {
             existingSubTask[key] = subUpdates[key]
         }
     }
+    existingTask.progress = updateProgress(existingTask)
+    console.log(existingSubTask)
+
     res.json({
         status: 'ok',
         message: 'subTask Updated!',
